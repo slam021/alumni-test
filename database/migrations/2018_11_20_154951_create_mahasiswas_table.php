@@ -21,8 +21,6 @@ class CreateMahasiswasTable extends Migration
             $table->text('judulskripsiMahasiswa');
             $table->string('pembimbing1');
             $table->string('pembimbing2');
-            //$table->string('gambarMahasiswa');
-           //$table->string('path');
             $table->timestamps();
         });
     }

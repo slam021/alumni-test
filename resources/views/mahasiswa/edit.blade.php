@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'Edit Alumni')
 @section('content')
 
 <html lang="en">
@@ -6,7 +7,6 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Data Alumni</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     </head>
     <body>
@@ -18,17 +18,17 @@
         </div>
         <br>
 
-        @if ($errors->all())
+        @if ($errors->any())
             <div class="alert alert-danger">
-                <strong>Whoops! </strong> Ada permasalahan inputanmu.<br>
+                <i class="fa fa-warning"></i> <strong>Whoops! </strong> Ada permasalahan inputanmu.
                 <ul>
-                    @foreach ($errors as $error)
-                        <li>{{$error}}</li>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
         @endif
-        
+
         <form action="{{route('mahasiswa.update',$mahasiswa->id)}}" method="post" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -73,23 +73,46 @@
                     <input type="text" name="pembimbing2" class="form-control" value="{{$mahasiswa->pembimbing2}}" id="pembimbing2" placeholder="Pembimbing 2">
                 </div>
             </div>
-            <!--<div class="form-group row">
-                <label for="gambarMahasiswa" class="col-sm-2 col-form-label">Pilih gambar</label>
+            <div class="form-group row">
+                <label for="foto" class="col-sm-2 col-form-label">Foto</label>
                 <div class="col-sm-10">
-                    <input type="file" name="gambarMahasiswa">
-                <p class="text-danger">{{ $errors->first('gambarMahasiswa') }}</p>
+                    <input type="file" name="foto">
+                    @if($mahasiswa->foto)
+                        <img src="{{ asset('storage/' . $mahasiswa->foto) }}" alt="Foto" width="100">
+                    @endif
+                <p class="text-danger">{{ $errors->first('foto') }}</p>
                 </div>
-            </div>-->
+            </div>
+            <div class="form-group row">
+                <label for="ijazah" class="col-sm-2 col-form-label">Ijazah</label>
+                <div class="col-sm-10">
+                    <input type="file" name="ijazah">
+                    @if($mahasiswa->ijazah)
+                        <a href="{{ asset('storage/' . $mahasiswa->ijazah) }}" target="_blank">Lihat Ijazah</a>
+                    @endif
+                <p class="text-danger">{{ $errors->first('ijazah') }}</p>
+                </div>
+            </div>
+            {{-- <div class="form-group">
+                <label for="foto">Foto (JPEG, PNG, max 1MB)</label>
+                <input type="file" name="foto" class="form-control-file">
+                @if($mahasiswa->foto)
+                    <img src="{{ asset('storage/' . $mahasiswa->foto) }}" alt="Foto" width="100">
+                @endif
+            </div> --}}
 
-             <hr>
-                <div class="form-group">
-                    <a href="{{route('mahasiswa.index')}}" class="btn btn-success">Kembali</a>
-                    <button type="submit" class="btn btn-primary">Edit</button>
+            <hr>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Update</button>
+                    <button type="reset" class="btn btn-warning"><i class="fa fa-refresh"></i> Reset</button>
+                    <a href="{{ route('mahasiswa.index') }}" class="btn btn-secondary float-right"><i class="fa fa-arrow-circle-left"></i> Kembali</a>
                 </div>
+            </div>
         </form>
 
     </div>
     </body>
 </html>
-    
+
 @endsection

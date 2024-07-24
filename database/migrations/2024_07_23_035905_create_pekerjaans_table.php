@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreatePekerjaansTable extends Migration
 {
@@ -14,14 +14,13 @@ class CreatePekerjaansTable extends Migration
     public function up()
     {
         Schema::create('pekerjaans', function (Blueprint $table) {
-            Schema::create('pekerjaans', function (Blueprint $table) {
-                $table->increments('id');
-                $table->string('namaPekerjaan');
-                $table->text('alamatPekerjaan');
-                $table->string('noTelpPekerjaan');
-                $table->unsignedBigInteger('mahasiswaId');
-                $table->timestamps();
-            });
+            $table->increments('id');
+            $table->string('namaPekerjaan');
+            $table->text('alamatPekerjaan');
+            $table->string('noTelpPekerjaan');
+            $table->integer('mahasiswaId')->unsigned();
+            $table->foreign('mahasiswaId')->references('id')->on('mahasiswas')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

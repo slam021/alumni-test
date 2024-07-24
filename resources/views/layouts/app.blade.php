@@ -7,7 +7,10 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>@yield('title', 'PT. ESTU LINTAS INDONESIA TEKNOLOGI')</title>
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon-elit.png') }}">
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -15,6 +18,7 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
@@ -25,7 +29,7 @@
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{-- {{ config('app.name', 'Laravel') }} --}}
-                    PT. ELIT
+                    <img src="{{ asset('logo-elit.png')}}" alt="" class="" style="width: 110px;">
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -33,11 +37,18 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link {{ Route::currentRouteName() == 'pekerjaan.index' || Route::currentRouteName() == 'pekerjaan.create' || Route::currentRouteName() == 'pekerjaan.edit'? 'active font-weight-bold' : '' }}" href="{{ route('pekerjaan.index') }}">Pekerjaan</a>
-                        </li>
-                    </ul>
+                    @guest
+                    {{-- kosong --}}
+                    @else
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link {{ Route::currentRouteName() == 'mahasiswa.index' || Route::currentRouteName() == 'mahasiswa.show' ||  Route::currentRouteName() == 'mahasiswa.create' || Route::currentRouteName() == 'mahasiswa.edit'? 'active font-weight-bold' : '' }}" href="{{ route('mahasiswa.index') }}">Mahasiswa</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Route::currentRouteName() == 'pekerjaan.index' || Route::currentRouteName() == 'pekerjaan.show' ||  Route::currentRouteName() == 'pekerjaan.create' || Route::currentRouteName() == 'pekerjaan.edit'? 'active font-weight-bold' : '' }}" href="{{ route('pekerjaan.index') }}">Pekerjaan</a>
+                            </li>
+                        </ul>
+                    @endguest
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">

@@ -6,7 +6,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">{{ __('Register') }}</div>
-
+                <img src="{{ asset('logo-elit.png')}}" alt="" class="col-md-8 offset-md-4 mt-3" style="width: 250px;">
                 <div class="card-body">
                     <form method="POST" action="{{ route('register') }}">
                         @csrf

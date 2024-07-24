@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Mahasiswa;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MahasiswaExport;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class MahasiswaController extends Controller
 {
@@ -12,11 +16,42 @@ class MahasiswaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $mahasiswas = Mahasiswa::orderBy('id','asc')->paginate(5);
-        return view('mahasiswa.index',compact('mahasiswas'))
-                ->with('i',(request()->input('page',1) -1)*5);
+        $query = Mahasiswa::query();
+
+        if ($request->filled('nama')) {
+            $query->where('namaMahasiswa', 'like', '%' . $request->nama . '%');
+        }
+
+        if ($request->filled('nim')) {
+            $query->where('nimMahasiswa', 'like', '%' . $request->nim . '%');
+        }
+
+        if ($request->filled('angkatan')) {
+            $query->where('angkatanMahasiswa', 'like', '%' . $request->angkatan . '%');
+        }
+
+        if ($request->filled('judul')) {
+            $query->where('judulskripsiMahasiswa', 'like', '%' . $request->judul . '%');
+        }
+
+        $mahasiswas = $query->orderBy('id','asc')->paginate(5);
+
+        return view('mahasiswa.index',compact('mahasiswas'))->with('i',(request()->input('page',1) -1)*5);
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new MahasiswaExport, 'data_alumni.xlsx');
+    }
+
+    public function exportPdf()
+    {
+        $mahasiswas = Mahasiswa::orderBy('id','asc')->get();
+        $waktu_sekarang = date('d/m/Y - h:i:s');
+        $pdf = PDF::loadView('mahasiswa.export.pdf', compact('mahasiswas', 'waktu_sekarang'));
+        return $pdf->stream('data_alumni.pdf');
     }
 
     /**
@@ -45,12 +80,25 @@ class MahasiswaController extends Controller
             'judulskripsiMahasiswa' => 'required',
             'pembimbing1'=>'required',
             'pembimbing2' => 'required',
-            //'gambarMahasiswa' => 'required|image|mimes:jpg,png,jpeg'
+            'foto' => 'nullable|mimes:jpeg,png,jpg|max:1024',
+            'ijazah' => 'nullable|mimes:pdf|max:1024',
         ]);
- 
-        Mahasiswa::create($request->all());
-        return redirect()->route('mahasiswa.index')
-                         ->with('success','Data berhasil ditambahkan');
+
+        $mahasiswa = new Mahasiswa($request->except(['foto', 'ijazah']));
+
+        if ($request->hasFile('foto')) {
+            $fotoName = 'foto_' . time() . '.' . $request->file('foto')->getClientOriginalExtension();
+            $mahasiswa->foto = $request->file('foto')->storeAs('foto_mahasiswa', $fotoName, 'public');
+        }
+
+        if ($request->hasFile('ijazah')) {
+            $ijazahName = 'ijazah_' . time() . '.' . $request->file('ijazah')->getClientOriginalExtension();
+            $mahasiswa->ijazah = $request->file('ijazah')->storeAs('ijazah_mahasiswa', $ijazahName, 'public');
+        }
+
+        $mahasiswa->save();
+
+        return redirect()->route('mahasiswa.index')->with('success','Data berhasil ditambahkan');
     }
 
     /**
@@ -93,18 +141,32 @@ class MahasiswaController extends Controller
             'judulskripsiMahasiswa' => 'required',
             'pembimbing1'=>'required',
             'pembimbing2' => 'required',
-            //'gambarMahasiswa' => 'required|image|mimes:jpg,png,jpeg'
+            'foto' => 'nullable|mimes:jpeg,png,jpg|max:1024',
+            'ijazah' => 'nullable|mimes:pdf|max:1024',
         ]);
-        $mahasiswa = Mahasiswa::find($id);
-        $mahasiswa->namaMahasiswa = $request->get('namaMahasiswa');
-        $mahasiswa->nimMahasiswa = $request->get('nimMahasiswa');
-        $mahasiswa->angkatanMahasiswa = $request->get('angkatanMahasiswa');
-        $mahasiswa->judulskripsiMahasiswa = $request->get('judulskripsiMahasiswa');
-        $mahasiswa->pembimbing1 = $request->get('pembimbing1');
-        $mahasiswa->pembimbing2 = $request->get('pembimbing2');
+
+        $mahasiswa = Mahasiswa::findOrFail($id);
+        $mahasiswa->fill($request->except(['foto', 'ijazah']));
+
+        if ($request->hasFile('foto')) {
+            if ($mahasiswa->foto) {
+                Storage::disk('public')->delete($mahasiswa->foto);
+            }
+            $fotoName = 'foto_' . time() . '.' . $request->file('foto')->getClientOriginalExtension();
+            $mahasiswa->foto = $request->file('foto')->storeAs('foto_mahasiswa', $fotoName, 'public');
+        }
+
+        if ($request->hasFile('ijazah')) {
+            if ($mahasiswa->ijazah) {
+                Storage::disk('public')->delete($mahasiswa->ijazah);
+            }
+            $ijazahName = 'ijazah_' . time() . '.' . $request->file('ijazah')->getClientOriginalExtension();
+            $mahasiswa->ijazah = $request->file('ijazah')->storeAs('ijazah_mahasiswa', $ijazahName, 'public');
+        }
+
         $mahasiswa->save();
-        return redirect()->route('mahasiswa.index')
-                         ->with('success', 'Data berhasil diupdate');
+
+        return redirect()->route('mahasiswa.index')->with('success', 'Data berhasil diupdate');
     }
 
     /**
@@ -117,7 +179,6 @@ class MahasiswaController extends Controller
     {
         $mahasiswa = Mahasiswa::find($id);
         $mahasiswa->delete();
-        return redirect()->route('mahasiswa.index')
-                         ->with('success', 'Data Alumni berhasil dihapus');
+        return redirect()->route('mahasiswa.index')->with('success', 'Data Alumni berhasil dihapus');
     }
 }

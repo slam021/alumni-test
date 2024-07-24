@@ -11,12 +11,15 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
+Route::get('/', 'HomeController@index')->name('home');
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::resource('mahasiswa', 'MahasiswaController');
-Route::resource('/pekerjaan', 'PekerjaanController');
+//auth group
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/home', 'HomeController@index')->name('home');
+    Route::get('mahasiswa/export/excel', 'MahasiswaController@exportExcel')->name('mahasiswa.export.excel');
+    Route::get('mahasiswa/export/pdf', 'MahasiswaController@exportPdf')->name('mahasiswa.export.pdf');
+
+    Route::resource('mahasiswa', 'MahasiswaController');
+    Route::resource('/pekerjaan', 'PekerjaanController');
+});

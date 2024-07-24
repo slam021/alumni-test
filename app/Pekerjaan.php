@@ -10,6 +10,6 @@ class Pekerjaan extends Model
 
     public function mahasiswa()
     {
-        return $this->belongsTo('App\Mahasiswa');
+        return $this->belongsTo('App\Mahasiswa', 'mahasiswaId');
     }
 }
